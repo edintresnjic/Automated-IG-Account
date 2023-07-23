@@ -1,9 +1,9 @@
 from PIL import ImageFont, ImageDraw, Image  
 import cv2  
+import requests
 import numpy as np 
 
-# random_num = np.random.randint(1, 7)
-random_num = 5
+random_num = np.random.randint(1, 7)
 cap = cv2.VideoCapture(f'template_videos/{random_num}.mp4')
 
 frame_width = int(cap.get(3))
@@ -13,8 +13,29 @@ size = (frame_width, frame_height)
 fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
 result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.avi', fourcc, 30, size)
 
-font_size = 50
-text = "One day, or day one."
+font_size = 43
+
+def get_motivational_quote(max_length=30):
+    try:
+        response = requests.get("https://zenquotes.io/api/random")
+        data = response.json()
+        quote = data[0]['q']
+        author = data[0]['a']
+
+        # Truncate the quote if it exceeds the max_length
+        if len(quote) > max_length:
+            quote = quote[:max_length - 3] + "..."
+
+        return f"{quote} - {author}"
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
+    except (KeyError, IndexError):
+        return "Error: Unable to fetch quote"
+
+# Example usage:
+text = get_motivational_quote(max_length=30)
+print(text)
+    
 
 while(True):
     
