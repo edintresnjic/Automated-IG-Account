@@ -9,8 +9,8 @@ frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
    
 size = (frame_width, frame_height)
-fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.mp4', 0, 0, size)
+fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
+result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.avi', fourcc, 30, size)
 
 font_size = 30
 
@@ -38,6 +38,7 @@ while(True):
     cv2_im_processed = cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)  
 
     cv2.imshow('video', cv2_im_processed)
+    result.write(cv2_im_processed)
   
     # creating 'q' as the quit 
     # button for the video
