@@ -9,9 +9,8 @@ frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
    
 size = (frame_width, frame_height)
-result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.mp4',
-                         cv2.VideoWriter_fourcc('P', 'I', 'M', 'I'),
-                         10, size)
+fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.mp4', 0, 0, size)
 
 font_size = 30
 
@@ -34,7 +33,7 @@ while(True):
     W = cap.get(3)
     H = cap.get(4)
 
-    draw.text(((W-font_size)/2,(H-font_size)/2), "One day, or day one.", anchor="mm", font=font)
+    draw.text(((W-font_size)/2,(H-font_size)/2), "One day, or day one.", font=font)
     
     cv2_im_processed = cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)  
 
