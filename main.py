@@ -2,8 +2,12 @@ from PIL import ImageFont, ImageDraw, Image
 import cv2  
 import requests
 import numpy as np 
+import moviepy.editor as mpe
+from moviepy.editor import *
+import os
 
 random_num = np.random.randint(1, 7)
+random_music = np.random.randint(1, 6)
 cap = cv2.VideoCapture(f'template_videos/{random_num}.mp4')
 
 frame_width = int(cap.get(3))
@@ -15,18 +19,21 @@ result = cv2.VideoWriter(f'exported_videos/exported_video{random_num}.avi', four
 
 font_size = 43
 
+QUOTE_DATA = {
+    "limit": 1,
+    "maxLength": 30,
+    "minLength": 10,
+}
+
 def get_motivational_quote(max_length=30):
     try:
-        response = requests.get("https://zenquotes.io/api/random")
+        response = requests.get("https://api.quotable.io/quotes/random", QUOTE_DATA)
         data = response.json()
-        quote = data[0]['q']
-        author = data[0]['a']
+        print(data)
+        quote = data[0]["content"]
 
-        # Truncate the quote if it exceeds the max_length
-        if len(quote) > max_length:
-            quote = quote[:max_length - 3] + "..."
-
-        return f"{quote} - {author}"
+        return quote
+            
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
     except (KeyError, IndexError):
@@ -34,7 +41,6 @@ def get_motivational_quote(max_length=30):
 
 # Example usage:
 text = get_motivational_quote(max_length=30)
-print(text)
     
 
 while(True):
@@ -42,10 +48,16 @@ while(True):
     ## MAIN FRAME HANDLING
     # Capture frames in the video
     ret, frame = cap.read()
+    if ret == None:
+        break
     font = ImageFont.truetype("THEBOLDFONT.ttf", font_size)
     
-    # Convert the image to RGB (OpenCV uses BGR) to use for pillow
-    cv2_im_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) 
+    # Convert the image to RGB (OpenCV uses BGR) to use for pillow:
+    try:
+        cv2_im_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) 
+    except:
+        print("Reached end")
+        break
    
     # Pass the image to PIL  
     pil_im = Image.fromarray(cv2_im_rgb) 
@@ -89,3 +101,14 @@ cap.release()
 result.release()
 # close all windows
 cv2.destroyAllWindows()
+
+# Add Music
+clip = mpe.VideoFileClip(f'exported_videos/exported_video{random_num}.avi')
+sped_up_clip = clip.fx(vfx.speedx, 2)
+audio_bg = mpe.AudioFileClip(f'music/{random_music}.MP3')
+final_clip = sped_up_clip.set_audio(audio_bg)
+final_clip.write_videofile(f'finished_videos/exported_video{random_num}.mp4')
+
+# Remove exported video
+os.remove(f'exported_videos/exported_video{random_num}.avi')
+
